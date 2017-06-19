@@ -5,6 +5,6 @@ using UnityEngine;
 public interface IEnemy {
 
     void die();
-    void hit(string part, float dps);
+    void hit(string part, float dps,Vector3 point);
       
 }

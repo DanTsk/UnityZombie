@@ -6,6 +6,8 @@ using UnityEngine;
 public class MainHero : MonoBehaviour {
     public GameObject gun;
     public GameObject barell;
+    public GameObject shootEnd;
+
     public float ShootRange;
     public float ShootDamage;
 
@@ -23,7 +25,7 @@ public class MainHero : MonoBehaviour {
 
 
     Animator animator;
-    ParticleSystem gunParticles;
+    ParticleSystem gunParticles,groundGun;
     RaycastHit shootHit;
 
     IEnumerator reloadState,afterState;
@@ -41,6 +43,7 @@ public class MainHero : MonoBehaviour {
     {
         animator = this.GetComponent<Animator>();
         gunParticles = barell.GetComponent<ParticleSystem>();
+        groundGun = shootEnd.GetComponent<ParticleSystem>();
 
         zombieMask = LayerMask.GetMask("Zombie");
 
@@ -56,7 +59,7 @@ public class MainHero : MonoBehaviour {
     {
       
         updateLooking(mouseInWorld().point);
-        updateShooting(mouseInWorld().collider);
+        updateShooting(mouseInWorld());
         updateReload();
     }
 
@@ -85,7 +88,7 @@ public class MainHero : MonoBehaviour {
         }
     }
 
-    void updateShooting(Collider collider) {
+    void updateShooting(RaycastHit hit) {
         currentTime -= Time.deltaTime;
 
         if (Input.GetMouseButtonDown(0) && currentTime <= 0 && currentAmmo > 0) {
@@ -99,14 +102,24 @@ public class MainHero : MonoBehaviour {
 
             gunParticles.Stop();
             gunParticles.Play();
-
-
-            ZombieHittable enemy = collider.GetComponent<ZombieHittable>();
-
-            if (enemy)
+                       
+            if (hit.collider != null)
             {
-                enemy.onPartHitted(10f);
+                ZombieHittable enemy = hit.collider.GetComponent<ZombieHittable>();
+
+                if (enemy)
+                {
+                    enemy.onPartHitted(10f, hit.point);
+                }
+                else
+                {
+                    shootEnd.transform.position = hit.point;
+                    groundGun.Stop();
+                    groundGun.Play();
+                }
+                
             }
+
         }
     }
 

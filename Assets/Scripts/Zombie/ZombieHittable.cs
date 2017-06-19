@@ -15,14 +15,14 @@ public class ZombieHittable : MonoBehaviour {
     }
 
    
-    public void onPartHitted(float dps)
+    public void onPartHitted(float dps,Vector3 point)
     {
         float exact = dps;
   
         if (part == "Head") exact *= 2.5f;
         else if (part == "Leg") exact /= 2f;
 
-        zombieController.hit(part,dps);
+        zombieController.hit(part, exact, point);
     }
 
 }
