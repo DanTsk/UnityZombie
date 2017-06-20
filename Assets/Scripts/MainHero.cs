@@ -7,6 +7,8 @@ public class MainHero : MonoBehaviour {
     public GameObject gun;
     public GameObject barell;
     public GameObject shootEnd;
+    public GameObject grenade,grenadePlace,grenadeMesh;
+
 
     public float ShootRange;
     public float ShootDamage;
@@ -23,9 +25,11 @@ public class MainHero : MonoBehaviour {
     int zombieMask;
     int currentAmmo;
 
-
+    MeshRenderer gunMesh,grenMesh;
     Animator animator;
     ParticleSystem gunParticles,groundGun;
+    TrailRenderer grenadeTrail;
+
     RaycastHit shootHit;
 
     IEnumerator reloadState,afterState;
@@ -35,6 +39,7 @@ public class MainHero : MonoBehaviour {
     enum Mode {
         Shooting,
         Reloading,
+        Grenade,
         Idle
     }
 
@@ -45,12 +50,21 @@ public class MainHero : MonoBehaviour {
         gunParticles = barell.GetComponent<ParticleSystem>();
         groundGun = shootEnd.GetComponent<ParticleSystem>();
 
+        gunMesh = gun.GetComponent<MeshRenderer>();
+        grenMesh = grenadeMesh.GetComponent<MeshRenderer>();
+        grenadeTrail = grenadeMesh.GetComponent<TrailRenderer>();
+
+        grenMesh.enabled = false;
+        grenadeTrail.enabled = false;
+
         zombieMask = LayerMask.GetMask("Zombie");
 
         currentAmmo = maxAmmo;
         currentTime = 0f;
 
         animationClipInfo();
+
+     
     }
 
 
@@ -60,6 +74,7 @@ public class MainHero : MonoBehaviour {
       
         updateLooking(mouseInWorld().point);
         updateShooting(mouseInWorld());
+        updateGrenade(mouseInWorld());
         updateReload();
     }
 
@@ -81,7 +96,7 @@ public class MainHero : MonoBehaviour {
 
         Vector3 lookAt = new Vector3(way.x, this.transform.position.y, way.z);
 
-        if (way != Vector3.zero && way.z > 5f)
+        if (way != Vector3.zero && way.z > 5f && currentMode != Mode.Grenade)
         {
             this.transform.LookAt(lookAt);
             this.barell.transform.LookAt(lookAt);
@@ -91,12 +106,12 @@ public class MainHero : MonoBehaviour {
     void updateShooting(RaycastHit hit) {
         currentTime -= Time.deltaTime;
 
-        if (Input.GetMouseButtonDown(0) && currentTime <= 0 && currentAmmo > 0) {
+        if (Input.GetMouseButtonDown(0) && currentTime <= 0 && currentAmmo > 0 && currentMode != Mode.Grenade) {
             currentTime = timeBetweenShoots;
             currentAmmo--;
             currentMode = Mode.Shooting;
 
-
+           
             animator.SetTrigger("Shoot");
             cancelReload();
 
@@ -123,8 +138,25 @@ public class MainHero : MonoBehaviour {
         }
     }
 
+    void updateGrenade(RaycastHit hit) {
+        if (Input.GetMouseButtonDown(1) && currentMode != Mode.Grenade)
+        {
+            currentMode = Mode.Grenade;
+            cancelGranadeReload();
+
+            animator.SetTrigger("Throw");
+            gunMesh.enabled = false;
+
+            GameObject obj = GameObject.Instantiate(this.grenade);
+            obj.transform.parent = this.grenadePlace.transform.parent;
+            obj.transform.position = this.grenadePlace.transform.position;
+          
+            StartCoroutine(grenadeCoroutine(obj, hit));           
+        }
+    }
+
     void updateReload() {
-        if (currentAmmo < maxAmmo && currentMode != Mode.Reloading) {
+        if (currentAmmo < maxAmmo && currentMode != Mode.Reloading && currentMode != Mode.Grenade) {
             currentMode = Mode.Reloading;
             afterState = afterShoot();
             StartCoroutine(afterState);      
@@ -132,6 +164,7 @@ public class MainHero : MonoBehaviour {
     }
 
 
+    Vector3 test = new Vector3(149f, 0f, 16f);
 
 
     void startReload() {
@@ -154,6 +187,17 @@ public class MainHero : MonoBehaviour {
 
     }
 
+    void cancelGranadeReload() {
+        if (reloadState != null)
+        {           
+            StopCoroutine(reloadState);
+        }
+
+        if (afterState != null)
+        {
+            StopCoroutine(afterState);
+        }
+    }
 
 
 
@@ -162,6 +206,7 @@ public class MainHero : MonoBehaviour {
         {
             yield return new WaitForSeconds(oneReloadLength);     
             currentAmmo++;
+            Debug.Log(currentAmmo);
         }
 
         currentMode = Mode.Idle;
@@ -169,10 +214,29 @@ public class MainHero : MonoBehaviour {
     }
 
     IEnumerator afterShoot() {
-        yield return new WaitForSeconds(shootAnimationLength - 0.05f);
+        yield return new WaitForSeconds(shootAnimationLength + 0.05f);
         startReload();
     }
 
+    IEnumerator grenadeCoroutine(GameObject obj, RaycastHit hit) {
+        yield return new WaitForSeconds(.5f);
+        grenMesh.enabled = true;
+
+        yield return new WaitForSeconds(.5f);        
+        grenadeTrail.enabled = true;
+
+        yield return new WaitForSeconds(.8f);
+        grenMesh.enabled = false;
+        grenadeTrail.enabled = false;
+
+        obj.GetComponent<Grenade>().launchGrenade(hit.point);
+       
+
+        yield return new WaitForSeconds(.6f);
+        gunMesh.enabled = true;
+        currentMode = Mode.Idle;
+
+    }
 
 
     void animationClipInfo() {
@@ -190,8 +254,10 @@ public class MainHero : MonoBehaviour {
         }
     }
 
-    float shootAnimationLength;
 
+
+    float shootAnimationLength;
+  
 }
 
 
