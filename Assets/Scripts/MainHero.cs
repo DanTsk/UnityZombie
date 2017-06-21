@@ -15,7 +15,7 @@ public class MainHero : MonoBehaviour {
 
     public float timeBetweenShoots;
     public int maxAmmo;
-
+    public int grenades;
 
     RaycastHit mousePoint;
     Ray mouseWrapper;
@@ -71,10 +71,11 @@ public class MainHero : MonoBehaviour {
 
     void Update()
     {
-      
-        updateLooking(mouseInWorld().point);
-        updateShooting(mouseInWorld());
-        updateGrenade(mouseInWorld());
+        RaycastHit hit = mouseInWorld();
+
+        updateLooking(hit.point);
+        updateShooting(hit);
+        updateGrenade(hit);
         updateReload();
     }
 
@@ -97,7 +98,7 @@ public class MainHero : MonoBehaviour {
         Vector3 lookAt = new Vector3(way.x, this.transform.position.y, way.z);
 
         if (way != Vector3.zero && way.z > 5f && currentMode != Mode.Grenade)
-        {
+        {            
             this.transform.LookAt(lookAt);
             this.barell.transform.LookAt(lookAt);
         }
@@ -105,6 +106,8 @@ public class MainHero : MonoBehaviour {
 
     void updateShooting(RaycastHit hit) {
         currentTime -= Time.deltaTime;
+
+        if (hit.point.z < 5f) return;
 
         if (Input.GetMouseButtonDown(0) && currentTime <= 0 && currentAmmo > 0 && currentMode != Mode.Grenade) {
             currentTime = timeBetweenShoots;
@@ -124,7 +127,7 @@ public class MainHero : MonoBehaviour {
 
                 if (enemy)
                 {
-                    enemy.onPartHitted(10f, hit.point);
+                    enemy.onPartHitted(ShootDamage, hit.point);
                 }
                 else
                 {
@@ -139,8 +142,11 @@ public class MainHero : MonoBehaviour {
     }
 
     void updateGrenade(RaycastHit hit) {
-        if (Input.GetMouseButtonDown(1) && currentMode != Mode.Grenade)
+        if (hit.point.z < 5f) return;
+
+        if (Input.GetMouseButtonDown(1) && currentMode != Mode.Grenade && grenades > 0)
         {
+            grenades--;
             currentMode = Mode.Grenade;
             cancelGranadeReload();
 

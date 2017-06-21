@@ -8,6 +8,7 @@ public class Grenade : MonoBehaviour
 
     Rigidbody rigidBody;
     ParticleSystem explosion;
+    BoxCollider boxCollider;
     MeshRenderer mesh;
     Vector3 target;
 
@@ -29,16 +30,18 @@ public class Grenade : MonoBehaviour
         if (Vector3.Distance(transform.position, target) < 0.55f && currentMode!= Mode.grounded) {
             currentMode = Mode.grounded;
             mesh.enabled = false;
-
+           
             particles.transform.position = this.transform.position;
             
             this.rigidBody.isKinematic = true;
             explosion.Stop();
             explosion.Play();
+
+            StartCoroutine(afterBoom());
         }
     }
 
-
+   
     public void launchGrenade(Vector3 target)
     {
         this.target = target;
@@ -46,6 +49,7 @@ public class Grenade : MonoBehaviour
         rigidBody = this.GetComponent<Rigidbody>();
         explosion = particles.GetComponent<ParticleSystem>();
         mesh = this.GetComponent<MeshRenderer>();
+        boxCollider = this.GetComponent<BoxCollider>();
 
         rigidBody.isKinematic = false;
         rigidBody.velocity = calculateGrenade(this.transform.position, target, 1f);
@@ -76,4 +80,11 @@ public class Grenade : MonoBehaviour
         return result;
     }
 
+    IEnumerator afterBoom() {
+        yield return new WaitForSeconds(.6f);
+        boxCollider.enabled = false;
+
+        yield return new WaitForSeconds(2.3f);
+        Destroy(this.gameObject);
+    }
 }

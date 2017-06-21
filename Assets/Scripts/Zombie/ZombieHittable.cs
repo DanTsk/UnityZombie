@@ -8,13 +8,16 @@ public class ZombieHittable : MonoBehaviour {
     public string part;
 
     Zombie zombieController;
+    int grenade;
 
     private void Awake()
     {
         zombieController = zombie.GetComponent<Zombie>();
+        
     }
 
-   
+
+
     public void onPartHitted(float dps,Vector3 point)
     {
         float exact = dps;
@@ -24,5 +27,7 @@ public class ZombieHittable : MonoBehaviour {
 
         zombieController.hit(part, exact, point);
     }
+
+ 
 
 }

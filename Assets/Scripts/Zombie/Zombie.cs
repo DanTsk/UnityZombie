@@ -7,15 +7,16 @@ using UnityEngine.AI;
 public class Zombie : MonoBehaviour, IEnemy {
     public float hitPoints;
 
-    public GameObject destination;
     public GameObject headBlood,bodyBlood;
     public GameObject body;
 
+
     [Header("Particles of dead")]
-    public GameObject soul;
+    public GameObject soul,soulLight;
 
     Animator animator;
     ParticleSystem headParticles,bodyParticles, soulParticles;
+    Light lightDeath;
 
     BoxCollider bodyCollider;
     Rigidbody rigidBody;
@@ -38,7 +39,8 @@ public class Zombie : MonoBehaviour, IEnemy {
   
     void Start () {
         agent = GetComponent<NavMeshAgent>();
-        agent.destination = destination.transform.position;
+        Debug.Log(LevelController.Instance.destination);
+        agent.destination = LevelController.Instance.destination;
 
         rigidBody = GetComponent<Rigidbody>();
 
@@ -47,14 +49,16 @@ public class Zombie : MonoBehaviour, IEnemy {
         bodyParticles = bodyBlood.GetComponent<ParticleSystem>();
         bodyCollider = body.GetComponent<BoxCollider>();
 
+        lightDeath = soulLight.GetComponent<Light>();
+
+
         soulParticles = soul.GetComponent<ParticleSystem>();
-        moveDown = new Vector3(0, -0.01f, 0); 
+        moveDown = new Vector3(0, -0.03f, 0); 
 
         currentMode = Mode.Walk;
     }
-	
-
-	void Update () {
+        
+    void Update () {
         if (hitPoints <= 0 && currentMode != Mode.Dead && currentMode != Mode.AfterDead) {
             die();
         }
@@ -69,12 +73,14 @@ public class Zombie : MonoBehaviour, IEnemy {
         }
 	}
 
+ 
     public void die()
     {
     
 
         soulParticles.Stop();
         soulParticles.Play();
+        lightDeath.enabled = true;
 
         currentMode = Mode.Dead;
         animator.SetBool("dead",true);
@@ -133,10 +139,28 @@ public class Zombie : MonoBehaviour, IEnemy {
     }
 
     IEnumerator afterDead() {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.2f);
         currentMode = Mode.AfterDead;
          rigidBody.isKinematic = true;
          agent.enabled = false;     
     }
-    
+
+    IEnumerator afterGrenade() {
+        yield return new WaitForSeconds(.3f);
+        die();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+
+        if(other.gameObject.layer == 9)
+        {
+            if (currentMode != Mode.Dead)
+            {
+                currentMode = Mode.Dead;
+                StartCoroutine(afterGrenade());
+            }
+        }
+               
+    }
 }
