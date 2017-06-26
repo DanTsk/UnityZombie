@@ -115,6 +115,7 @@ public class MainHero : MonoBehaviour {
         if (Input.GetMouseButtonDown(0) && currentTime <= 0 && currentAmmo > 0 && currentMode != Mode.Grenade) {
             currentTime = timeBetweenShoots;
             currentAmmo--;
+            LevelController.Instance.onShooted(currentAmmo);
             currentMode = Mode.Shooting;
 
            
@@ -150,9 +151,13 @@ public class MainHero : MonoBehaviour {
         if (Input.GetMouseButtonDown(1) && currentMode != Mode.Grenade && grenades > 0)
         {
             grenades--;
+
             if (grenade3.enabled) grenade3.enabled = false;
             else if (grenade2.enabled) grenade2.enabled = false;
             else if (grenade1.enabled) grenade1.enabled = false;
+
+            LevelController.Instance.onGrenadeThrow(grenades);
+
             currentMode = Mode.Grenade;
             cancelGranadeReload();
 
@@ -218,7 +223,7 @@ public class MainHero : MonoBehaviour {
         {
             yield return new WaitForSeconds(oneReloadLength);     
             currentAmmo++;
-            Debug.Log(currentAmmo);
+            LevelController.Instance.onReloaded(currentAmmo);          
         }
 
         currentMode = Mode.Idle;
