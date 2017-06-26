@@ -39,7 +39,9 @@ public class OpenShopButton : MonoBehaviour
     }
     public void onRestart()
     {
-  
+        SoundManager.Instance.switchSound();
+        SceneManager.LoadScene("menu");
+        
     }
     IEnumerator FadeTo()
     {

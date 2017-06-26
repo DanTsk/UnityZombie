@@ -55,8 +55,8 @@ public class Zombie : MonoBehaviour, IEnemy {
 
 
         soulParticles = soul.GetComponent<ParticleSystem>();
-        moveDown = new Vector3(0, -0.03f, 0); 
-
+        moveDown = new Vector3(0, -0.03f, 0);
+        agent.speed = 2;
         currentMode = Mode.Walk;
     }
         

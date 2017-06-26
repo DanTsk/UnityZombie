@@ -9,7 +9,7 @@ public class LevelController : MonoBehaviour
     public float betweenWavesPause;
     public int waves;
 
-
+    public UI2DSprite lostMenu;
     public GameObject point1, point2;
     public GameObject zombie_1, zombie_2, zombie_3, zombie_4, zombie_5;
 
@@ -50,10 +50,13 @@ public class LevelController : MonoBehaviour
         ammoLabel.text = PlayerPrefs.GetInt("ammo", 10)+"";
         downBorder = point1.transform.position;
         topBorder = point2.transform.position;
-
+        lives = 1;
+        Lives.text = lives + "";
         willSpawn = getWavesZombies();
         zombieAlive = willSpawn;
         coins = 0;
+        lostMenu.enabled = false;
+        lostMenu.UpdateVisibility(false, false);
     }
 
 
@@ -62,7 +65,10 @@ public class LevelController : MonoBehaviour
     {
         Debug.Log("zombie come");
         lives--;
+        zombieAlive--;
         Lives.text = lives+"";
+        if (lives < 1) lostMenu.enabled = true;
+        SoundManager.Instance.switchSound();
         
     }
 
@@ -135,12 +141,16 @@ public class LevelController : MonoBehaviour
     {
         if (alreadySpawned == willSpawn)
         {
+            MainHero.Instance.grenades = 3;
+            MainHero.Instance.grenade1.enabled = true;
+            MainHero.Instance.grenade2.enabled = true;
+            MainHero.Instance.grenade3.enabled = true;
             wavesEnd = true;
 
             currentWave++;
             alreadySpawned = 0;
             willSpawn = getWavesZombies();
-
+            
             return;
         }
 

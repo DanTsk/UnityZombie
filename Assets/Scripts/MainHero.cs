@@ -4,6 +4,10 @@ using UnityEngine;
 
 
 public class MainHero : MonoBehaviour {
+
+
+    public static MainHero Instance;
+
     public GameObject gun;
     public GameObject barell;
     public GameObject shootEnd;
@@ -46,7 +50,10 @@ public class MainHero : MonoBehaviour {
         Idle
     }
 
-
+    void Awake()
+    {
+        Instance = this;
+    }
     void Start()
     {
         animator = this.GetComponent<Animator>();
@@ -64,10 +71,11 @@ public class MainHero : MonoBehaviour {
 
         zombieMask = LayerMask.GetMask("Zombie");
         maxAmmo = PlayerPrefs.GetInt("ammo", 10);
+        grenades = PlayerPrefs.GetInt("grenades", 3);
         currentAmmo = maxAmmo;
         currentTime = 0f;
         animationClipInfo();
-
+        
      
     }
 
