@@ -37,6 +37,13 @@ public class OpenShopButton : MonoBehaviour
         StartCoroutine(FadeTo());
         Time.timeScale = 1;
     }
+
+    public void ToggleSound()
+    {
+        SoundManager.Instance.switchMusic();
+        SoundManager.Instance.switchSound();
+        Debug.Log(SoundManager.Instance.isMusicOn());
+    }
     public void onRestart()
     {
         SoundManager.Instance.switchSound();

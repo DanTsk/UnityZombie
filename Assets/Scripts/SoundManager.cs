@@ -36,7 +36,7 @@ public class SoundManager
             PlayerPrefs.SetInt("music", 0);
         else
             PlayerPrefs.SetInt("music", 1);
-
+        //LevelController.Instance.audio.Play(0);
         is_music_on = !is_music_on;
     }
 
