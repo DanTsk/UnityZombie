@@ -18,7 +18,7 @@ public class LevelController : MonoBehaviour {
     Vector3 downBorder, topBorder;
     bool wavesEnd;
 
-    int currentWave, alreadySpawned, willSpawn;
+    int currentWave, alreadySpawned, willSpawn , zombieAlive;
 
     float creepsPause, wavesPause;
 
@@ -32,6 +32,7 @@ public class LevelController : MonoBehaviour {
         wavesEnd = true;
 
         creepsPause = 0;
+        zombieAlive = 0;
         wavesPause = betweenWavesPause;
         prefabs = new GameObject[5] { zombie_1, zombie_2, zombie_3, zombie_4, zombie_5 };
 
@@ -49,6 +50,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void onZombieKilled() {
+        zombieAlive--;
         Debug.Log("zombie killed");
     }
 
@@ -71,7 +73,7 @@ public class LevelController : MonoBehaviour {
         if (wavesEnd) {
             wavesPause -= Time.deltaTime;
 
-            if (wavesPause <= 0) {
+            if (wavesPause <= 0 && zombieAlive == 0) {
                 wavesEnd = false;
                 willSpawn = getWavesZombies();
                 wavesPause = betweenWavesPause;
@@ -97,6 +99,7 @@ public class LevelController : MonoBehaviour {
             currentWave++;
             alreadySpawned = 0;
             willSpawn = getWavesZombies();
+            zombieAlive = willSpawn;
 
             return;
         }
