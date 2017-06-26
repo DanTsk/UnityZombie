@@ -32,7 +32,7 @@ public class MainHero : MonoBehaviour {
     Animator animator;
     ParticleSystem gunParticles,groundGun;
     TrailRenderer grenadeTrail;
-
+    AudioSource shotAudio, reloadAudio;
     RaycastHit shootHit;
 
     IEnumerator reloadState,afterState;
@@ -56,6 +56,8 @@ public class MainHero : MonoBehaviour {
         gunMesh = gun.GetComponent<MeshRenderer>();
         grenMesh = grenadeMesh.GetComponent<MeshRenderer>();
         grenadeTrail = grenadeMesh.GetComponent<TrailRenderer>();
+        shotAudio = this.GetComponents<AudioSource>()[0];
+        reloadAudio = this.GetComponents<AudioSource>()[1];
 
         grenMesh.enabled = false;
         grenadeTrail.enabled = false;
@@ -117,6 +119,11 @@ public class MainHero : MonoBehaviour {
             currentAmmo--;
             LevelController.Instance.onShooted(currentAmmo);
             currentMode = Mode.Shooting;
+
+            if (SoundManager.Instance.isSoundOn()) {
+                shotAudio.Stop();
+                shotAudio.Play();
+            }
 
            
             animator.SetTrigger("Shoot");
@@ -221,7 +228,11 @@ public class MainHero : MonoBehaviour {
     IEnumerator reloadCoroutine(int diffrenence) {
         for (int i = 0; i < diffrenence; i++)
         {
-            yield return new WaitForSeconds(oneReloadLength);     
+            yield return new WaitForSeconds(oneReloadLength);   
+            if (SoundManager.Instance.isSoundOn()) {
+                reloadAudio.Stop();
+                reloadAudio.Play();
+            }  
             currentAmmo++;
             LevelController.Instance.onReloaded(currentAmmo);          
         }

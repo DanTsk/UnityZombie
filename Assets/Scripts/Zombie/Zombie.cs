@@ -16,6 +16,7 @@ public class Zombie : MonoBehaviour, IEnemy {
 
     Animator animator;
     ParticleSystem headParticles,bodyParticles, soulParticles;
+    AudioSource audioSource;
     Light lightDeath;
 
     BoxCollider bodyCollider;
@@ -39,6 +40,8 @@ public class Zombie : MonoBehaviour, IEnemy {
   
     void Start () {
         agent = GetComponent<NavMeshAgent>();
+        audioSource = GetComponent<AudioSource>();
+
         agent.destination = LevelController.Instance.destination;
 
         rigidBody = GetComponent<Rigidbody>();
@@ -87,7 +90,10 @@ public class Zombie : MonoBehaviour, IEnemy {
  
     public void die()
     {
-    
+        if (SoundManager.Instance.isSoundOn()) {
+            audioSource.Stop();
+            audioSource.Play();
+        }
 
         soulParticles.Stop();
         soulParticles.Play();

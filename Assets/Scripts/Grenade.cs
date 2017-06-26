@@ -9,6 +9,7 @@ public class Grenade : MonoBehaviour
     Rigidbody rigidBody;
     ParticleSystem explosion;
     BoxCollider boxCollider;
+    AudioSource audioSource;
     MeshRenderer mesh;
     Vector3 target;
 
@@ -23,6 +24,7 @@ public class Grenade : MonoBehaviour
     void Start()
     {
         currentMode = Mode.none;
+        audioSource = this.GetComponent<AudioSource>();
     }
 
     void Update()
@@ -31,7 +33,12 @@ public class Grenade : MonoBehaviour
         if (Vector3.Distance(transform.position, target) < 0.55f && currentMode!= Mode.grounded) {
             currentMode = Mode.grounded;
             mesh.enabled = false;
-           
+
+            if (SoundManager.Instance.isSoundOn()) {
+                audioSource.Stop();
+                audioSource.Play();
+            }
+
             particles.transform.position = this.transform.position;
             
             this.rigidBody.isKinematic = true;
