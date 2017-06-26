@@ -9,6 +9,9 @@ public class MainHero : MonoBehaviour {
     public GameObject shootEnd;
     public GameObject grenade,grenadePlace,grenadeMesh;
 
+    public UI2DSprite grenade1;
+    public UI2DSprite grenade2;
+    public UI2DSprite grenade3;
 
     public float ShootRange;
     public float ShootDamage;
@@ -147,6 +150,9 @@ public class MainHero : MonoBehaviour {
         if (Input.GetMouseButtonDown(1) && currentMode != Mode.Grenade && grenades > 0)
         {
             grenades--;
+            if (grenade3.enabled) grenade3.enabled = false;
+            else if (grenade2.enabled) grenade2.enabled = false;
+            else if (grenade1.enabled) grenade1.enabled = false;
             currentMode = Mode.Grenade;
             cancelGranadeReload();
 

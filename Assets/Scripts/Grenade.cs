@@ -12,6 +12,7 @@ public class Grenade : MonoBehaviour
     MeshRenderer mesh;
     Vector3 target;
 
+    
     Mode currentMode;
 
     enum Mode {
@@ -53,7 +54,7 @@ public class Grenade : MonoBehaviour
 
         rigidBody.isKinematic = false;
         rigidBody.velocity = calculateGrenade(this.transform.position, target, 1f);
-
+        
 
     }
 
