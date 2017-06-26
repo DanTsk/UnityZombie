@@ -61,10 +61,9 @@ public class MainHero : MonoBehaviour {
         grenadeTrail.enabled = false;
 
         zombieMask = LayerMask.GetMask("Zombie");
-
+        maxAmmo = PlayerPrefs.GetInt("ammo", 10);
         currentAmmo = maxAmmo;
         currentTime = 0f;
-
         animationClipInfo();
 
      
@@ -75,7 +74,8 @@ public class MainHero : MonoBehaviour {
     void Update()
     {
         RaycastHit hit = mouseInWorld();
-
+        ShootDamage = PlayerPrefs.GetInt("damage", 10);
+        maxAmmo = PlayerPrefs.GetInt("ammo", 10);
         updateLooking(hit.point);
         updateShooting(hit);
         updateGrenade(hit);
