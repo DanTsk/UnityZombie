@@ -39,7 +39,6 @@ public class Zombie : MonoBehaviour, IEnemy {
   
     void Start () {
         agent = GetComponent<NavMeshAgent>();
-        Debug.Log(LevelController.Instance.destination);
         agent.destination = LevelController.Instance.destination;
 
         rigidBody = GetComponent<Rigidbody>();
@@ -71,7 +70,19 @@ public class Zombie : MonoBehaviour, IEnemy {
                 Destroy(this.transform.parent.gameObject);
             }
         }
-	}
+
+        if (!agent.pathPending && currentMode != Mode.Dead && currentMode != Mode.AfterDead)
+        {
+            if (agent.remainingDistance <= agent.stoppingDistance)
+            {
+                if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
+                {
+                    LevelController.Instance.onPointReached();
+                    Destroy(this.transform.parent.gameObject);
+                }
+            }
+        }
+    }
 
  
     public void die()
@@ -85,6 +96,8 @@ public class Zombie : MonoBehaviour, IEnemy {
         currentMode = Mode.Dead;
         animator.SetBool("dead",true);
         agent.speed = 0;
+
+        LevelController.Instance.onZombieKilled();
 
         StartCoroutine(afterDead());
     }
